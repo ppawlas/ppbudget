@@ -1,0 +1,8 @@
+{% load compress %}
+{% load staticfiles %}
+
+{% compress js %}
+<script type="text/javascript" src="{% static 'javascripts/ppbudget.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/ppbudget.config.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/ppbudget.routes.js' %}"></script>
+{% endcompress %}
