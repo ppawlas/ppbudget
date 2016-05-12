@@ -92,6 +92,21 @@ class TagTestCase(APITestCase):
         # test model
         self.assertFalse(TagViewSet.queryset.filter(name=new_tag_name).exists())
 
+    def test_post_tag_auth_invalid_name(self):
+        user = User.objects.get(username='test_user_2')
+        new_tag_name = 'Name that is definitely longer than 20 characters'
+        url = '/api/v1/tags/'
+        data = {'name': new_tag_name}
+
+        self.client.force_login(user)
+        response = self.client.post(url, data)
+
+        # test view and serializer
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        # test model
+        self.assertFalse(TagViewSet.queryset.filter(name=new_tag_name).exists())
+
     def test_post_tag_auth(self):
         user = User.objects.get(username='test_user_2')
         new_tag_name = 'test_tag_4'
