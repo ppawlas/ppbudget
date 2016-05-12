@@ -15,7 +15,7 @@ class TagViewSet(viewsets.ModelViewSet):
         elif self.request.method in ('GET', 'HEAD'):
             return permissions.IsAuthenticated(), permissions.IsAdminUser(),
         elif self.request.method in ('PUT', 'PATCH', 'DELETE'):
-            return IsTagOwner(),
+            return permissions.IsAuthenticated(), IsTagOwner(),
         else:   # self.request.method == 'POST'
             return permissions.IsAuthenticated(),
 
