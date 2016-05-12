@@ -7,3 +7,10 @@ class IsCategoryOwner(permissions.BasePermission):
         if request.user:
             return category.user == request.user
         return False
+
+
+class IsCategoriesOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user and view.kwargs['user_username']:
+            return request.user.username == view.kwargs['user_username']
+        return False

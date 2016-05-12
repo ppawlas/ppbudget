@@ -18,7 +18,7 @@ from django.contrib import admin
 from rest_framework_nested import routers
 from ppbudget.views import IndexView
 from authentication.views import UserViewSet, GroupViewSet
-from categories.views import CategoryViewSet
+from categories.views import CategoryViewSet, UserCategoriesViewSet
 from tags.views import TagViewSet, UserTagsViewSet
 from events.views import ResourceViewSet, EventViewSet
 
@@ -35,10 +35,16 @@ tags_router = routers.NestedSimpleRouter(
 )
 tags_router.register(r'tags', UserTagsViewSet)
 
+categories_router = routers.NestedSimpleRouter(
+    router, r'users', lookup='user'
+)
+categories_router.register(r'categories', UserCategoriesViewSet)
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/v1/', include(router.urls)),
     url(r'^api/v1/', include(tags_router.urls)),
+    url(r'^api/v1/', include(categories_router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     url('^.*$', IndexView.as_view(), name='index'),
