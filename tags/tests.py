@@ -123,6 +123,18 @@ class TagTestCase(APITestCase):
         # test model
         self.assertEquals(TagViewSet.queryset.get(id=test_tag.id).name, test_tag.name)
 
+    def test_patch_tag_not_exist(self):
+        user = User.objects.get(username='test_user_1')
+        new_tag_name = 'patched_test_tag_3'
+        url = '/api/v1/tags/999/'
+        data = {'name': new_tag_name}
+
+        self.client.force_login(user)
+        response = self.client.patch(url, data)
+
+        # test view and serializer
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_patch_tag_no_owner(self):
         user = User.objects.get(username='test_user_1')
         test_tag = Tag.objects.get(name='test_tag_3')
@@ -166,6 +178,16 @@ class TagTestCase(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
         # test model
         self.assertTrue(TagViewSet.queryset.filter(id=test_tag.id).exists())
+
+    def test_delete_tag_not_exist(self):
+        user = User.objects.get(username='test_user_1')
+        url = '/api/v1/tags/999/'
+
+        self.client.force_login(user)
+        response = self.client.delete(url)
+
+        # test view and serializer
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_tag_no_owner(self):
         user = User.objects.get(username='test_user_1')
