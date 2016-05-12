@@ -7,3 +7,10 @@ class IsTagOwner(permissions.BasePermission):
         if request.user:
             return tag.user == request.user
         return False
+
+
+class IsTagsOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user and view.kwargs['user_username']:
+            return request.user.username == view.kwargs['user_username']
+        return False

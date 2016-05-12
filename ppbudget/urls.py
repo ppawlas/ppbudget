@@ -15,11 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from rest_framework import routers
+from rest_framework_nested import routers
 from ppbudget.views import IndexView
 from authentication.views import UserViewSet, GroupViewSet
 from categories.views import CategoryViewSet
-from tags.views import TagViewSet
+from tags.views import TagViewSet, UserTagsViewSet
 from events.views import ResourceViewSet, EventViewSet
 
 router = routers.DefaultRouter()
@@ -30,9 +30,15 @@ router.register(r'tags', TagViewSet)
 router.register(r'resources', ResourceViewSet)
 router.register(r'events', EventViewSet)
 
+tags_router = routers.NestedSimpleRouter(
+    router, r'users', lookup='user'
+)
+tags_router.register(r'tags', UserTagsViewSet)
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/v1/', include(router.urls)),
+    url(r'^api/v1/', include(tags_router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     url('^.*$', IndexView.as_view(), name='index'),

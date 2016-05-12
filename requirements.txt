@@ -1,3 +1,4 @@
 Django
 djangorestframework
 django-compressor
+drf-nested-routers
