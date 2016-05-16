@@ -28,6 +28,7 @@ class Category(models.Model):
         try:
             return super(Category, self).delete(using, keep_parents)
         except ProtectedError:
+            # TODO check and try to distinguish the deletion when dependent events exist
             raise exceptions.ParseError('Cannot delete category with subcategories.')
 
     def __str__(self):

@@ -9,8 +9,8 @@ class ResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ('id', 'user', 'name', 'initial_balance', 'created_at', 'updated_at')
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'name', 'initial_balance', 'current_balance', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'current_balance', 'created_at', 'updated_at')
 
 
 class OperationSerializer(serializers.ModelSerializer):
@@ -18,14 +18,25 @@ class OperationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Operation
-        fields = ('id', 'resource', 'flow', 'created_at', 'updated_at')
-        read_only_fields = ('id', 'resource', 'created_at', 'updated_at')
+        fields = ('id', 'resource', 'event', 'flow', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'resource', 'event', 'created_at', 'updated_at')
 
 
 class EventSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True, required=False, default=serializers.CurrentUserDefault())
     tags = TagSerializer(many=True)
     operations = OperationSerializer(many=True)
+
+    def validate(self, data):
+        if data['category'].event_type != data['event_type']:
+            raise serializers.ValidationError('Event type and category type do not match.')
+        if data['category'].user != data['user']:
+            raise serializers.ValidationError('Event user and category user do not match.')
+        if 'tags' in data and data['tags'] and len([tag for tag in data['tags'] if tag.user != data['user']]) > 0:
+            raise serializers.ValidationError('Event user and at least one tag user do not match.')
+        if 'operations' in data and data['operations'] and \
+                len([operation for operation in data['operations'] if operation.resource.user != data['user']]) > 0:
+            raise serializers.ValidationError('Event user and at least one operation resource user do not match.')
 
     class Meta:
         model = Event
@@ -46,3 +57,5 @@ class EventSerializer(serializers.ModelSerializer):
             Operation.objects.create(event=event, **operation_data)
 
         return event
+
+    # TODO update method

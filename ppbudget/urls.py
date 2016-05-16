@@ -20,7 +20,8 @@ from ppbudget.views import IndexView
 from authentication.views import UserViewSet, GroupViewSet
 from categories.views import CategoryViewSet, UserCategoriesViewSet
 from tags.views import TagViewSet, UserTagsViewSet
-from events.views import ResourceViewSet, EventViewSet
+from events.views import ResourceViewSet, UserResourcesViewSet, ResourceOperationsViewSet, \
+    EventViewSet, UserEventsViewSet, EventOperationsViewSet
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -40,11 +41,35 @@ categories_router = routers.NestedSimpleRouter(
 )
 categories_router.register(r'categories', UserCategoriesViewSet)
 
+resources_router = routers.NestedSimpleRouter(
+    router, r'users', lookup='user'
+)
+resources_router.register(r'resources', UserResourcesViewSet)
+
+events_router = routers.NestedSimpleRouter(
+    router, r'users', lookup='user'
+)
+events_router.register(r'events', UserEventsViewSet)
+
+resource_operations_router = routers.NestedSimpleRouter(
+    router, r'resources', lookup='resource'
+)
+resource_operations_router.register(r'operations', ResourceOperationsViewSet)
+
+event_operations_router = routers.NestedSimpleRouter(
+    router, r'events', lookup='event'
+)
+event_operations_router.register(r'operations', EventOperationsViewSet)
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/v1/', include(router.urls)),
     url(r'^api/v1/', include(tags_router.urls)),
     url(r'^api/v1/', include(categories_router.urls)),
+    url(r'^api/v1/', include(resources_router.urls)),
+    url(r'^api/v1/', include(events_router.urls)),
+    url(r'^api/v1/', include(resource_operations_router.urls)),
+    url(r'^api/v1/', include(event_operations_router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     url('^.*$', IndexView.as_view(), name='index'),
